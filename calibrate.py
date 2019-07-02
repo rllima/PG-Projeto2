@@ -35,3 +35,8 @@ for fname in images:
         cv2.waitKey(500)
 
 cv2.destroyAllWindows()
+
+##Calibration parameters
+
+ret,mtx,dist,rvecs,tvecs = cv2.calibrateCamera(objpoints,imgpoints,gray.shape[::-1],None,None)
+np.savez("pose/webcam_calibration_params",ret=ret,mtx=mtx,dist=dist,rvecs=rvecs,tvecs=tvecs)

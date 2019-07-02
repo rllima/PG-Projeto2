@@ -1,29 +1,36 @@
 import cv2
 
 cam = cv2.VideoCapture(0)
-
-cv2.namedWindow("test")
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+cv2.namedWindow("Calibration")
 
 img_counter = 0
 
 while True:
-    ret, frame = cam.read()
-    cv2.imshow("test", frame)
-    if not ret:
-        break
+    _, frame = cam.read()
+    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+
+    # Find the chess board corners
+    ret, corners = cv2.findChessboardCorners(gray, (7,6),None)
     k = cv2.waitKey(1)
 
     if k%256 == 27:
         # ESC pressed
         print("Escape hit, closing...")
         break
-    elif k%256 == 32:
-        # SPACE pressed
-        img_name = "opencv_frame_{}.jpg".format(img_counter)
-        cv2.imwrite(img_name, frame)
-        print("{} written!".format(img_name))
-        img_counter += 1
-
+    if ret is True:
+        print("AQUI")
+        corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+        # Draw and display the corners
+        cv2.drawChessboardCorners(frame, (7,6), corners2,ret)
+        
+        if img_counter < 10:
+            # SPACE pressed
+            img_name = "opencv_frame_{}.jpg".format(img_counter)
+            cv2.imwrite(img_name, frame)
+            print("{} written!".format(img_name))
+            img_counter += 1
+    cv2.imshow('Calibration',frame)
 cam.release()
 
 cv2.destroyAllWindows()

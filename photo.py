@@ -19,15 +19,12 @@ while True:
         print("Escape hit, closing...")
         break
     if ret is True:
-        print("AQUI")
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         # Draw and display the corners
-        cv2.drawChessboardCorners(frame, (7,6), corners2,ret)
-        
+        img=cv2.drawChessboardCorners(frame, (7,6), corners2,ret)
         if img_counter < 10:
-            # SPACE pressed
             img_name = "opencv_frame_{}.jpg".format(img_counter)
-            cv2.imwrite(img_name, frame)
+            cv2.imwrite(img_name, img)
             print("{} written!".format(img_name))
             img_counter += 1
     cv2.imshow('Calibration',frame)

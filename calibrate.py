@@ -13,7 +13,7 @@ objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
-images = glob.glob('imgs_calibration/*.jpg')
+images = glob.glob('*.jpg')
 
 for fname in images:
     img = cv2.imread(fname)
@@ -28,13 +28,6 @@ for fname in images:
 
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         imgpoints.append(corners2)
-
-        # Draw and display the corners
-        img = cv2.drawChessboardCorners(img, (7,6), corners2,ret)
-        cv2.imshow('img',img)
-        cv2.waitKey(500)
-
-cv2.destroyAllWindows()
 
 ##Calibration parameters
 

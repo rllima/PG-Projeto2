@@ -2,20 +2,20 @@ import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
 
-img1 = cv.imread('query.png',cv.IMREAD_GRAYSCALE)
-img2 = cv.imread('scene.png',cv.IMREAD_GRAYSCALE)
+img1 = cv.imread('matcher/query.png',cv.IMREAD_GRAYSCALE)
+img2 = cv.imread('matcher/scene.png',cv.IMREAD_GRAYSCALE)
 
-freak = cv.xfeatures2d.FREAK_create()
+freak = cv.BRISK_create()
 
-kp1,des1 = freak.compute(img1,None)
-kp2,des2 = freak.compute(img2,None)
+kp1,des1 = freak.detectAndCompute(img1,None)
+kp2,des2 = freak.detectAndCompute(img2,None)
 
 FLAN_INDEX_KDTREE = 0
 index_params = dict(algorithm = FLAN_INDEX_KDTREE, trees = 5)
 search_paramns = dict(checks=50)
 
 flann = cv.FlannBasedMatcher(index_params,search_paramns)
-matches = flann.knnMatch(des1,des2,k=2)
+matches = flann.knnMatch(np.asarray(des1,np.float32),np.asarray(des2,np.float32),k=2)
 
 # Need to draw only good matches, so create a mask
 matchesMask = [[0,0] for i in range(len(matches))]

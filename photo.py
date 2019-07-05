@@ -24,7 +24,7 @@ def take_photos():
         if ret is True:
             corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
             # Save images
-            if img_counter < 20:
+            if img_counter < 50:
                 img_name = "opencv_frame_{}.jpg".format(img_counter)
                 cv2.imwrite(img_name, frame)
                 print("{} written!".format(img_name))

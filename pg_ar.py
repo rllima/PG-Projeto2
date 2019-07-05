@@ -11,7 +11,7 @@ from camera import*
 
 # Minimum number of matches that have to be found
 # to consider the recognition valid
-MIN_MATCHES = 10 
+MIN_MATCHES = 15 
 
 def read_cam_paramns():
         with np.load('pose/webcam_calibration_params.npz') as X:
@@ -42,6 +42,7 @@ def main():
     # init video capture
     cap = VideoCaptureAsync(0)
     cap.start()
+    cv2.waitKey(1)
 
     while True:
         # read the current frame
@@ -83,7 +84,7 @@ def main():
                     projection = projection_matrix(camera_parameters, homography)  
                     # project cube or model
                     #frame = draw(model,dst_pts,imgpts)
-                    frame = render(frame, obj, projection, model,color=True)
+                    frame = render(frame, obj, projection, model,color=False)
                    
                 except:
                     pass

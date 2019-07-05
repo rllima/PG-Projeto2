@@ -11,7 +11,8 @@ from camera import*
 
 # Minimum number of matches that have to be found
 # to consider the recognition valid
-MIN_MATCHES = 15 
+MIN_MATCHES = 16
+ 
 
 def read_cam_paramns():
         with np.load('pose/webcam_calibration_params.npz') as X:

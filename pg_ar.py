@@ -11,7 +11,7 @@ from camera import*
 
 # Minimum number of matches that have to be found
 # to consider the recognition valid
-MIN_MATCHES = 10  
+MIN_MATCHES = 10 
 
 def read_cam_paramns():
         with np.load('pose/webcam_calibration_params.npz') as X:
@@ -27,9 +27,7 @@ def prepare_env():
         return read_cam_paramns()
 
 def main():
-    """
-    This functions loads the target surface image,
-    """
+    
     homography = None 
     # matrix of camera parameters (made up but works quite well for me) 
     camera_parameters,dist = prepare_env()
@@ -40,7 +38,7 @@ def main():
     # Compute model keypoints and its descriptors
     kp_model, des_model = orb.detectAndCompute(model, None)
     # Load 3D model from OBJ file
-    obj = OBJ('models\pirate-ship-fat.obj', swapyz=True)  
+    obj = OBJ('models/fox.obj', swapyz=True)  
     # init video capture
     cap = VideoCaptureAsync(0)
     cap.start()
@@ -72,20 +70,26 @@ def main():
             # project corners into frame
             dst = cv2.perspectiveTransform(pts, homography)
             # connect them with lines  
-            frame = cv2.polylines(frame, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)  
+            frame = cv2.polylines(frame, [np.int32(dst)], True, 255, 3, cv2.LINE_AA) 
+            axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3) 
             # if a valid homography matrix was found render cube on model plane
             if homography is not None:
                 try:
+                    #Pose estimation
+                     # Find the rotation and translation vectors.
+                    #rvecs, tvecs, inliers = cv2.solvePnPRansac(src_pts, dst_pts, camera_parameters, dist)
                     # obtain 3D projection matrix from homography matrix and camera parameters
+                    #imgpts, jac = cv2.projectPoints(obj, rvecs, tvecs, mtx, dist)
                     projection = projection_matrix(camera_parameters, homography)  
                     # project cube or model
-                    frame = render(frame, obj, projection, model, True)
-                    #frame = render(frame, model, projection)
+                    #frame = draw(model,dst_pts,imgpts)
+                    frame = render(frame, obj, projection, model,color=True)
+                   
                 except:
                     pass
             # draw first 10 matches.
            
-            frame = cv2.drawMatches(model, kp_model, frame, kp_frame, matches[:10], 0, flags=2)
+            #frame = cv2.drawMatches(model, kp_model, frame, kp_frame, matches[:10], 0, flags=2)
             # show result
             cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -104,7 +108,7 @@ def render(img, obj, projection, model, color=False):
     """
     vertices = obj.vertices
     scale_matrix = np.eye(3) * 3
-    h, w = model.shape
+    h, w,_ = model.shape
 
     for face in obj.faces:
         face_vertices = face[0]

@@ -11,7 +11,7 @@ from camera import*
 
 # Minimum number of matches that have to be found
 # to consider the recognition valid
-MIN_MATCHES = 16
+MIN_MATCHES = 50
  
 
 def read_cam_paramns():
@@ -54,10 +54,13 @@ def main():
         # find and draw the keypoints of the frame
         kp_frame, des_frame = orb.detectAndCompute(frame, None)
         # match frame descriptors with model descriptors
-        matches = bf.match(des_model, des_frame)
-        # sort them in the order of their distance
-        # the lower the distance, the better the match
-        matches = sorted(matches, key=lambda x: x.distance)
+        try:
+            matches = bf.match(des_model, des_frame)
+            # sort them in the order of their distance
+            # the lower the distance, the better the match
+            matches = sorted(matches, key=lambda x: x.distance)
+        except:
+            pass
 
         # compute Homography if enough matches are found
         if len(matches) > MIN_MATCHES:
@@ -73,32 +76,24 @@ def main():
             dst = cv2.perspectiveTransform(pts, homography)
             # connect them with lines  
             frame = cv2.polylines(frame, [np.int32(dst)], True, 255, 3, cv2.LINE_AA) 
-            axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3) 
             # if a valid homography matrix was found render cube on model plane
             if homography is not None:
                 try:
-                    #Pose estimation
-                     # Find the rotation and translation vectors.
-                    #rvecs, tvecs, inliers = cv2.solvePnPRansac(src_pts, dst_pts, camera_parameters, dist)
                     # obtain 3D projection matrix from homography matrix and camera parameters
-                    #imgpts, jac = cv2.projectPoints(obj, rvecs, tvecs, mtx, dist)
                     projection = projection_matrix(camera_parameters, homography)  
-                    # project cube or model
-                    #frame = draw(model,dst_pts,imgpts)
+                    # project model
                     frame = render(frame, obj, projection, model,color=False)
-                   
                 except:
                     pass
             # draw first 10 matches.
-           
-            #frame = cv2.drawMatches(model, kp_model, frame, kp_frame, matches[:10], 0, flags=2)
+            frame = cv2.drawMatches(model, kp_model, frame, kp_frame, matches[:10], 0, flags=2)
             # show result
             cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
         else:
-            print ("Not enough matches found - %d/%d" % (len(matches), MIN_MATCHES))
+            cv2.imshow('frame', frame)
 
     cap.stop()
     cv2.destroyAllWindows()
